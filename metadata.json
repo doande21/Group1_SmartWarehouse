@@ -1,0 +1,7 @@
+{
+  "name": "OmniStore: Smart Warehouse AI",
+  "description": "An advanced warehouse management system simulating robotic logistics with custom-implemented data structures (Linked Lists, BST, Graphs) and AI-driven optimization insights.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
