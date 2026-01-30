@@ -9,7 +9,6 @@ public class MyQueue<T> {
     private Node head, tail;
     private int size = 0;
 
-    // FIFO: Thêm vào cuối
     public void enqueue(T data) {
         Node newNode = new Node(data);
         if (tail == null) {
@@ -21,7 +20,6 @@ public class MyQueue<T> {
         size++;
     }
 
-    // FIFO: Lấy ra từ đầu
     public T dequeue() {
         if (head == null) return null;
         T data = head.data;
