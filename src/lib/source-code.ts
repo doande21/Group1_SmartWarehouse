@@ -210,6 +210,75 @@ public class WarehouseGraph {
         }
     }
 }`,
+  'GraphTest.java': `public class GraphTest {
+    public static void main(String[] args) {
+        WarehouseGraph graph = new WarehouseGraph();
+        
+        System.out.println("--- Starting Graph Unit Tests ---");
+        
+        // Setup simple grid
+        graph.addEdge("0-0", "0-1", 1);
+        graph.addEdge("0-1", "0-2", 1);
+        graph.addEdge("0-0", "1-0", 1);
+        
+        // Test 1: Shortest Path
+        List<String> path = graph.findShortestPath("0-0", "0-2");
+        if (path.size() == 3 && path.contains("0-1")) {
+            System.out.println("[PASS] Test 1: Shortest path found correctly");
+        } else {
+            System.out.println("[FAIL] Test 1: Path calculation error");
+        }
+        
+        // Test 2: Unreachable Node
+        List<String> noPath = graph.findShortestPath("0-0", "9-9");
+        if (noPath.isEmpty()) {
+            System.out.println("[PASS] Test 2: Correctly identified unreachable node");
+        } else {
+            System.out.println("[FAIL] Test 2: Found path to non-existent node");
+        }
+        
+        System.out.println("--- Graph Tests Completed ---");
+    }
+}`,
+  'PerformanceBenchmark.java': `import java.util.*;
+
+public class PerformanceBenchmark {
+    public static void main(String[] args) {
+        int SIZE = 10000;
+        List<Product> list = new ArrayList<>();
+        ProductBST bst = new ProductBST();
+        
+        // Generate 10,000 items
+        for (int i = 0; i < SIZE; i++) {
+            Product p = new Product("ID-" + i, "Product " + i, "Test");
+            list.add(p);
+            bst.insert(p);
+        }
+        
+        String targetId = "ID-9999";
+        
+        // Benchmark List (Linear Search)
+        long startList = System.nanoTime();
+        Product foundList = null;
+        for (Product p : list) {
+            if (p.id.equals(targetId)) {
+                foundList = p;
+                break;
+            }
+        }
+        long endList = System.nanoTime();
+        
+        // Benchmark BST (Logarithmic Search)
+        long startBST = System.nanoTime();
+        Product foundBST = bst.search(targetId);
+        long endBST = System.nanoTime();
+        
+        System.out.println("Benchmark Results for " + SIZE + " items:");
+        System.out.println("List Search Time: " + (endList - startList) / 1000000.0 + " ms");
+        System.out.println("BST Search Time: " + (endBST - startBST) / 1000000.0 + " ms");
+        System.out.println("Efficiency Gain: " + (double)(endList - startList) / (endBST - startBST) + "x");
+    }
+}`,
   'WarehouseTest.java': `public class WarehouseTest {
     public static void main(String[] args) {
         System.out.println("Initializing Warehouse Simulator...");
