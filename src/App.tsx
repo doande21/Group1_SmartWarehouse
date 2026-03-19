@@ -217,40 +217,58 @@ export default function App() {
 
   const runBSTUnitTest = () => {
     setIsSimulating(true);
-    addLog('--- Starting BST Unit Tests ---', 'info');
-    setTimeout(() => {
-      addLog('Test 1: Insertion (M, A, Z) ... OK', 'success');
-      setTimeout(() => {
-        addLog('[PASS] Test 2: Found product "A"', 'success');
-        setTimeout(() => {
-          addLog('[PASS] Test 3: Correctly returned null for "B"', 'success');
-          setTimeout(() => {
-            addLog('[PASS] Test 4: Successfully deleted "A"', 'success');
-            addLog('--- BST Tests Completed ---', 'info');
-            setIsSimulating(false);
-          }, 500);
-        }, 500);
-      }, 500);
-    }, 500);
+    addLog('>>> [LOGIC CHECK] Starting BST Search Validation...', 'info');
+    
+    const testTree = new BST();
+    const p1: Product = { id: 'M-TEST', name: 'Mid', category: 'Test', timestamp: 0 };
+    const p2: Product = { id: 'A-TEST', name: 'Alpha', category: 'Test', timestamp: 0 };
+
+    try {
+      testTree.insert(p1);
+      testTree.insert(p2);
+      addLog('Step 1: Data Insertion ... SUCCESS', 'success');
+
+      addLog('Step 2: Verifying Search Logic...', 'info');
+      const found = testTree.search('A-TEST');
+      
+      if (found && found.id === 'A-TEST') {
+        addLog('Step 2: Search for "A-TEST" ... PASSED', 'success');
+      } else {
+        // NẾU BẠN ĐỂ return null, NÓ SẼ NHẢY VÀO ĐÂY
+        throw new Error('CRITICAL: Search function returned NULL for an existing product!');
+      }
+
+      addLog('>>> BST LOGIC VERIFIED: ALL GREEN', 'success');
+    } catch (e: any) {
+      addLog(`>>> BST TEST FAILED: ${e.message}`, 'error');
+    }
+    setIsSimulating(false);
   };
 
   const runGraphUnitTest = () => {
     setIsSimulating(true);
-    addLog('--- Starting Graph Unit Tests (Dijkstra) ---', 'info');
-    setTimeout(() => {
-      addLog('Test 1: Path 0-0 to 0-2 ... OK (Length: 3)', 'success');
-      setTimeout(() => {
-        addLog('Test 2: Path 0-0 to 7-7 ... OK (Length: 15)', 'success');
-        setTimeout(() => {
-          addLog('Test 3: Obstacle Detection (2-2) ... OK (Path bypassed)', 'success');
-          setTimeout(() => {
-            addLog('[PASS] All Graph tests passed successfully.', 'success');
-            addLog('--- Graph Tests Completed ---', 'info');
-            setIsSimulating(false);
-          }, 500);
-        }, 500);
-      }, 500);
-    }, 500);
+    addLog('>>> [LOGIC CHECK] Starting Dijkstra Path Validation...', 'info');
+    
+    try {
+      const path = warehouseGraph.dijkstra('0-0', '0-2');
+      if (path.length === 3 && path.includes('0-1')) {
+        addLog('Step 1: Shortest Path Calculation ... PASSED', 'success');
+      } else {
+        throw new Error('Dijkstra returned incorrect path length or nodes');
+      }
+
+      const pathAround = warehouseGraph.dijkstra('1-2', '3-2');
+      if (!pathAround.includes('2-2')) {
+        addLog('Step 2: Obstacle Avoidance (2-2) ... PASSED', 'success');
+      } else {
+        throw new Error('Robot path collided with obstacle at 2-2!');
+      }
+
+      addLog('>>> GRAPH LOGIC VERIFIED: ALL GREEN', 'success');
+    } catch (e: any) {
+      addLog(`>>> GRAPH TEST FAILED: ${e.message}`, 'error');
+    }
+    setIsSimulating(false);
   };
 
   const loadMapFromFile = () => {
@@ -303,30 +321,37 @@ export default function App() {
     if (!node) return null;
     return (
       <div className="flex flex-col items-center">
-        <div className="flex items-center justify-center">
+        <div className="relative">
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-bold shadow-lg bg-white
-              ${searchQuery && node.product.id.includes(searchQuery.toUpperCase()) ? 'border-blue-500 text-blue-600 ring-4 ring-blue-100' : 'border-zinc-200 text-zinc-600'}`}
+            className={`w-14 h-14 rounded-full border-2 flex items-center justify-center text-[11px] font-bold shadow-xl bg-white z-10 relative
+              ${searchQuery && node.product.id.includes(searchQuery.toUpperCase()) ? 'border-blue-500 text-blue-600 ring-4 ring-blue-100' : 'border-zinc-300 text-zinc-700'}`}
           >
-            {node.product.id.split('-')[1]}
+            {node.product.id.includes('-') ? node.product.id.split('-')[1] : node.product.id}
           </motion.div>
         </div>
-        <div className="flex gap-8 mt-8 relative">
-          {node.left && (
-            <div className="relative">
-              <div className="absolute top-[-32px] right-[-16px] w-[2px] h-8 bg-zinc-200 rotate-[45deg]" />
-              <BSTVisualizer node={node.left} level={level + 1} />
-            </div>
-          )}
-          {node.right && (
-            <div className="relative">
-              <div className="absolute top-[-32px] left-[-16px] w-[2px] h-8 bg-zinc-200 rotate-[-45deg]" />
-              <BSTVisualizer node={node.right} level={level + 1} />
-            </div>
-          )}
-        </div>
+        
+        {(node.left || node.right) && (
+          <div className="flex gap-16 mt-12 relative">
+            {node.left && (
+              <div className="flex flex-col items-center relative">
+                {/* Nhánh Trái: Đường kẻ đậm và rõ ràng */}
+                <div className="absolute top-[-48px] right-1/2 w-[50%] h-[48px] border-t-4 border-l-4 border-zinc-400 rounded-tl-3xl opacity-60" 
+                     style={{ transform: 'translateX(50%)' }} />
+                <BSTVisualizer node={node.left} level={level + 1} />
+              </div>
+            )}
+            {node.right && (
+              <div className="flex flex-col items-center relative">
+                {/* Nhánh Phải: Đường kẻ đậm và rõ ràng */}
+                <div className="absolute top-[-48px] left-1/2 w-[50%] h-[48px] border-t-4 border-r-4 border-zinc-400 rounded-tr-3xl opacity-60"
+                     style={{ transform: 'translateX(-50%)' }} />
+                <BSTVisualizer node={node.right} level={level + 1} />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };

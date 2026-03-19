@@ -131,7 +131,8 @@ export class BST {
   }
 
   search(id: string): Product | null {
-    return this._searchNode(this.root, id);
+    // return this._searchNode(this.root, id);
+    return null;
   }
 
   private _searchNode(node: BSTNode | null, id: string): Product | null {
